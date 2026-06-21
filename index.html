@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nunya — Math in Twi, Ga, Ewe & English</title>
+<meta name="description" content="Nunya — learn foundational mathematics in Twi, Ga and Ewe, alongside English. An interactive, open-source learning tool for Ghanaian learners." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     Palette grounded in kente / adinkra: warm gold, forest green,
+     clay red, teal, on a golden-parchment ground.
+     Language colour-coding: Twi = green, Ga = clay, Ewe = teal.
+     ============================================================ */
+  :root{
+    --ink:#241B12;
+    --ink-soft:#5A4A38;
+    --paper:#FBF2DD;
+    --panel:#FFFCF4;
+    --gold:#E0A22B;
+    --gold-deep:#B97D14;
+    --green:#1F7A4D;
+    --green-soft:#E4F0E7;
+    --clay:#C45B33;
+    --clay-soft:#F6E5DA;
+    --ewe:#2A6F7A;
+    --ewe-soft:#DCEDEE;
+    --red:#B5402B;
+    --line:rgba(36,27,18,.14);
+    --line-strong:rgba(36,27,18,.28);
+    --shadow:0 1px 0 rgba(36,27,18,.06), 0 12px 28px -18px rgba(36,27,18,.45);
+    --r:16px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Plus Jakarta Sans",system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 18px}
+
+  .kente{
+    height:10px;
+    background:
+      repeating-linear-gradient(90deg,
+        var(--gold) 0 22px,
+        var(--green) 22px 34px,
+        var(--red) 34px 46px,
+        var(--ink) 46px 58px);
+  }
+
+  header{padding:26px 0 8px}
+  .head-row{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+  .brand h1{
+    font-family:"Fraunces",serif;font-weight:900;
+    font-size:clamp(34px,7vw,56px);line-height:.96;margin:0;letter-spacing:-.01em;
+  }
+  .brand .tagline{margin:6px 0 0;font-family:"Fraunces",serif;font-style:italic;font-size:17px;color:var(--gold-deep)}
+  .brand .tagline .mean{font-style:normal;font-family:"Plus Jakarta Sans",sans-serif;font-size:13px;color:var(--ink-soft)}
+  .brand .sub{margin:8px 0 0;color:var(--ink-soft);font-size:15px;max-width:46ch}
+  .brand .triname{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .triname span{font-size:12.5px;font-weight:600;letter-spacing:.02em;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel)}
+  .triname .en{color:var(--ink)}
+  .triname .tw{color:var(--green);border-color:rgba(31,122,77,.3);background:var(--green-soft)}
+  .triname .ga{color:var(--clay);border-color:rgba(196,91,51,.3);background:var(--clay-soft)}
+  .triname .ew{color:var(--ewe);border-color:rgba(42,111,122,.3);background:var(--ewe-soft)}
+
+  .lang-pick{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow);min-width:300px}
+  .lang-pick .lbl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .seg{display:flex;gap:6px;margin-top:8px}
+  .seg button{flex:1;cursor:pointer;font:inherit;font-weight:700;padding:9px 6px;border-radius:10px;border:1.5px solid var(--line-strong);background:transparent;color:var(--ink);transition:.15s ease}
+  .seg button .small{display:block;font-size:11px;font-weight:600;color:var(--ink-soft)}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .seg button[aria-pressed="true"] .small{color:rgba(255,255,255,.75)}
+  .seg button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+  nav.topics{position:sticky;top:0;z-index:20;background:var(--paper);padding:14px 0;margin-top:18px;border-bottom:1px solid var(--line)}
+  .topics-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+  .topics-row button{cursor:pointer;font:inherit;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line-strong);background:var(--panel);color:var(--ink);transition:.15s ease}
+  .topics-row button .op{font-family:"Fraunces",serif;font-weight:900;font-size:18px;line-height:1;color:var(--gold-deep)}
+  .topics-row button[aria-selected="true"]{background:var(--gold);border-color:var(--gold-deep);color:var(--ink)}
+  .topics-row button[aria-selected="true"] .op{color:var(--ink)}
+  .topics-row button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+
+  main{padding:24px 0 40px}
+  .panel{display:none;animation:rise .35s ease both}
+  .panel.active{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .topic-title{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(24px,4.4vw,34px);margin:0 0 4px;letter-spacing:-.01em}
+  .topic-kicker{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:6px}
+
+  .explain{display:grid;gap:12px;margin:18px 0 22px}
+  @media(min-width:680px){.explain{grid-template-columns:1fr 1fr}}
+  .ex-card{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;background:var(--panel);box-shadow:var(--shadow)}
+  .ex-card .tag{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:inline-flex;align-items:center;gap:7px}
+  .ex-card .tag::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+  .ex-card.home{border-color:rgba(224,162,43,.5);background:linear-gradient(180deg,#FFFBF0,#FFF7E5)}
+  .ex-card.home .tag{color:var(--gold-deep)}
+  .ex-card.eng .tag{color:var(--ink-soft)}
+  .ex-card p{margin:0;font-size:18px}
+  .ex-card.home p{font-size:19px;font-weight:500}
+  .review{display:inline-block;margin-top:10px;font-size:11.5px;font-weight:700;color:var(--clay);background:var(--clay-soft);border:1px solid rgba(196,91,51,.3);padding:2px 8px;border-radius:999px}
+
+  .stage{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);box-shadow:var(--shadow);padding:18px;margin-bottom:20px}
+  .stage h3{margin:0 0 4px;font-size:14px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
+  .stage h3 .h-en{font-weight:600;color:var(--ink-soft);text-transform:none;letter-spacing:0;font-size:12.5px;margin-left:6px}
+  .hint{max-width:980px;margin:14px auto 0;padding:0 18px}
+  .hint .inner{display:flex;gap:9px;align-items:flex-start;background:var(--ewe-soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14.5px;line-height:1.4}
+  .hint .inner .loc{font-weight:700;color:var(--ink)}
+  .hint .inner .en{color:var(--ink-soft)}
+
+  .tray{display:flex;flex-wrap:wrap;gap:10px;min-height:84px;align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#fff 0 12px,#FFFBF0 12px 24px);border:1.5px dashed var(--line-strong);border-radius:12px;padding:16px;margin:12px 0}
+  .shell{width:38px;height:38px;animation:pop .25s ease both}
+  @keyframes pop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+  .count-read{display:grid;gap:6px;text-align:center;margin-top:10px}
+  .count-read .big{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(40px,9vw,68px);line-height:1}
+  .count-read .word{font-size:20px;font-weight:700}
+  .count-read .word .mut{color:var(--ink-soft);font-weight:600;font-size:14px}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+  button.btn{cursor:pointer;font:inherit;font-weight:700;padding:11px 18px;border-radius:11px;border:1.5px solid var(--ink);background:var(--ink);color:#fff;transition:.15s ease}
+  button.btn.ghost{background:transparent;color:var(--ink)}
+  button.btn.gold{background:var(--gold);border-color:var(--gold-deep);color:var(--ink)}
+  button.btn:active{transform:translateY(1px)}
+  button.btn:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+  button.btn:disabled{opacity:.45;cursor:not-allowed}
+
+  .objrow{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center;margin:14px 0;font-family:"Fraunces",serif;font-weight:900;font-size:34px;color:var(--gold-deep)}
+  .group{display:flex;flex-wrap:wrap;gap:7px;max-width:200px;justify-content:center;padding:10px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+  .group .shell{width:30px;height:30px;animation:none}
+  .group.faded .shell{opacity:.22;filter:grayscale(1)}
+
+  .practice{margin-top:8px;border-top:1px solid var(--line);padding-top:16px}
+  .qline{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-family:"Fraunces",serif;font-weight:900;font-size:clamp(30px,7vw,46px)}
+  .qline input{width:96px;font:inherit;font-size:clamp(28px,6vw,42px);text-align:center;border:2px solid var(--line-strong);border-radius:12px;padding:2px 6px;background:#fff;color:var(--ink)}
+  .qline input:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-color:var(--gold-deep)}
+  .feedback{margin-top:12px;font-size:18px;font-weight:700;min-height:28px;display:flex;align-items:center;gap:10px}
+  .feedback.ok{color:var(--green)}
+  .feedback.no{color:var(--red)}
+  .feedback .all{font-weight:600;color:var(--ink-soft);font-size:15px}
+
+  .fracwrap{display:grid;gap:18px;align-items:center;justify-content:center;text-align:center}
+  .frac-svg{margin:0 auto}
+  .frac-svg .slice{cursor:pointer;transition:fill .12s ease}
+  .frac-read{font-family:"Fraunces",serif;font-weight:900;font-size:48px}
+  .frac-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .pill{cursor:pointer;font:inherit;font-weight:700;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line-strong);background:#fff;color:var(--ink)}
+  .pill[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+  .pill:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+  .xlate{display:grid;gap:14px}
+  @media(min-width:680px){.xlate{grid-template-columns:auto 1fr}}
+  .numgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .numgrid button{cursor:pointer;font:inherit;font-weight:800;font-size:20px;font-family:"Fraunces",serif;aspect-ratio:1;border:1.5px solid var(--line-strong);border-radius:12px;background:#fff;color:var(--ink);transition:.12s ease}
+  .numgrid button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold-deep)}
+  .numgrid button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+  .xout{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:18px;display:grid;gap:10px;align-content:center}
+  .xout .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:8px}
+  .xout .row:last-child{border:0;padding-bottom:0}
+  .xout .k{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+  .xout .v{font-size:24px;font-weight:800}
+
+  footer{border-top:1px solid var(--line);padding:26px 0 50px;color:var(--ink-soft);font-size:14.5px}
+  footer a{color:var(--gold-deep);font-weight:700}
+  .footnote{margin-top:10px;font-size:13px}
+
+  @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+<div class="kente" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap head-row">
+    <div class="brand">
+      <h1>Nunya</h1>
+      <p class="tagline">Maths in your language &nbsp;<span class="mean">· Eʋe for “knowledge”</span></p>
+      <p class="sub">Learn the basics of mathematics in your own language — Twi, Gã or Eʋe — with English shown beside it, so the maths and the English grow together.</p>
+      <div class="triname">
+        <span class="en">English</span>
+        <span class="tw">Twi · Akan</span>
+        <span class="ga">Gã</span>
+        <span class="ew">Eʋe</span>
+      </div>
+    </div>
+    <div class="lang-pick">
+      <div class="lbl">Your language</div>
+      <div class="seg" role="group" aria-label="Choose your home language" id="lang-seg"></div>
+    </div>
+  </div>
+</header>
+
+<nav class="topics" aria-label="Topics">
+  <div class="wrap"><div class="topics-row" role="tablist" id="tablist"></div></div>
+</nav>
+
+<div class="hint"><div class="inner"><span aria-hidden="true">💡</span><span><span class="loc" id="hint-loc"></span> <span class="en" id="hint-en"></span></span></div></div>
+
+<main class="wrap" id="panels"></main>
+
+<footer>
+  <div class="wrap">
+    <strong>Nunya</strong> is free and open source — built so anyone can learn, copy, and improve it. Created by Seyram.
+    <div class="footnote">
+      ⚠️ The Twi, Gã and Eʋe text here is a <strong>best-effort first draft</strong> and needs review by native speakers.
+      All wording lives in one place in the code (the <code>CONTENT</code> block) so it is easy to correct.
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   CONTENT  —  EDIT TRANSLATIONS HERE
+   Every word of Twi, Ga and Ewe the app shows is in this block.
+   "review:true" just turns on the orange "needs review" badge.
+   Google Translate now supports Twi, Ga and Ewe — a useful
+   cross-check, but please still confirm with a native speaker.
+   ============================================================ */
+
+// The languages the app offers. Add a new one here + a matching
+// key (e.g. ewe:) in every entry below, and it appears everywhere.
+const LANGS = [
+  { id:"twi", label:"Twi", sub:"Akan", name:"Twi", accent:"green" },
+  { id:"ga",  label:"Gã",  sub:"Ga",   name:"Gã",  accent:"clay"  },
+  { id:"ewe", label:"Eʋe", sub:"Ewe",  name:"Eʋe", accent:"ewe"   },
+];
+
+// Number words 1–10. Twi = Asante Twi. Ga & Ewe spellings best-effort.
+const NUMBERS = [
+  { n:1,  en:"one",   twi:"baako",   ga:"ekome",  ewe:"ɖeka"    },
+  { n:2,  en:"two",   twi:"mmienu",  ga:"enyɔ",   ewe:"eve"     },
+  { n:3,  en:"three", twi:"mmiɛnsa", ga:"etɛ",    ewe:"etɔ̃"     },
+  { n:4,  en:"four",  twi:"ɛnan",    ga:"ejwɛ",   ewe:"ene"     },
+  { n:5,  en:"five",  twi:"enum",    ga:"enumɔ",  ewe:"atɔ̃"     },
+  { n:6,  en:"six",   twi:"nsia",    ga:"ekpaa",  ewe:"adé"     },
+  { n:7,  en:"seven", twi:"nson",    ga:"kpawo",  ewe:"adre"    },
+  { n:8,  en:"eight", twi:"nwɔtwe",  ga:"kpaanyɔ",ewe:"enyi"    },
+  { n:9,  en:"nine",  twi:"nkron",   ga:"nɛɛhu",  ewe:"asiɛke"  },
+  { n:10, en:"ten",   twi:"edu",     ga:"nyɔŋma", ewe:"ewo"     },
+];
+
+// Short on-screen feedback words.
+const FEEDBACK = {
+  correct: { en:"Correct!",  twi:"Aane, ɛyɛ!", ga:"Ojogbaŋŋ!", ewe:"Esɔ!"           },
+  retry:   { en:"Try again", twi:"Sɔ hwɛ bio", ga:"Ka ekoŋ",   ewe:"Te ekpɔ ake"    },
+};
+
+// UI micro-labels
+const UI = {
+  add:    { en:"Add",     twi:"Fa ka ho", ga:"Kɛfata",  ewe:"Tsɔ kpe"  },
+  remove: { en:"Remove",  twi:"Yi bi",    ga:"Jie eko", ewe:"Ɖe ɖa"    },
+  reset:  { en:"Reset",   twi:"San hyɛ",  ga:"Tswa shi",ewe:"Gbugbɔ"   },
+  check:  { en:"Check",   twi:"Hwɛ",      ga:"Kwɛ",     ewe:"Kpɔ ɖa"   },
+  next:   { en:"New one", twi:"Foforɔ",   ga:"Hee",     ewe:"Yeye"     },
+  total:  { en:"Total",   twi:"Nyinaa",   ga:"Fɛɛ",     ewe:"Katã"     },
+};
+
+// Section headings shown above each activity (chosen language + English).
+const HEAD = {
+  tray:  { en:"Counting tray", twi:"Kan ha",        ga:"Kane biɛ",   ewe:"Xlẽ afii"   },
+  see:   { en:"See it",        twi:"Hwɛ",           ga:"Kwɛmɔ",      ewe:"Kpɔe ɖa"    },
+  turn:  { en:"Your turn",     twi:"Wo berɛ nie",   ga:"Amrɔ bo be", ewe:"Azɔ wò tɔe" },
+  share: { en:"Sharing a whole",twi:"Kyɛ mu",       ga:"Gbalamɔ",    ewe:"Mama"       },
+};
+
+// One-line "how to use" hint shown at the top.
+const HINT = {
+  en:  "Pick a topic. Read it in your language, then tap and try.",
+  twi: "Yi adesua bi. Kenkan no wo kasa mu, na mia sɔ hwɛ.",
+  ga:  "Halɔ nɔ ko. Kane lɛ yɛ o wiemɔ mli, ni otã okwɛ.",
+  ewe: "Tia nusɔsrɔ̃ aɖe. Xlẽe le wò gbe me, eye nàzi edzi akpɔ.",
+};
+
+// Topics. Each has titles + a short explanation in all languages.
+const TOPICS = [
+  {
+    id:"count", op:"123", kind:"count",
+    title:{ en:"Numbers — Counting 1 to 10", twi:"Akontaa — Kan 1 kɔsi 10", ga:"Akɔntaa — Kane 1 kɛyaa 10", ewe:"Xexlẽdzesiwo — Xlẽ 1 va se ɖe 10" },
+    ex:{
+      en:"Tap to add a shell. Each shell is one. Watch the number — and the word — grow.",
+      twi:"Mia na fa mpaa baako ka ho. Mpaa biara yɛ baako. Hwɛ sɛ akontaa no ne asɛm no rekɔ soro.",
+      ga:"Tã ni okɛ shell kome fata. Shell fɛɛ shell ji ekome. Kwɛ bɔ ni akɔntaa lɛ kɛ wiemɔ lɛ miikwɔ.",
+      ewe:"Zi edzi nàtsɔ nu ɖeka akpe ɖe eŋu. Nu ɖe sia ɖe nye ɖeka. Kpɔ ale si xexlẽdzesi la kple nya la le dzidzim ɖe edzi.",
+    },
+    review:true,
+  },
+  {
+    id:"add", op:"+", kind:"arith", a:[1,9], b:[1,9], fn:(a,b)=>a+b,
+    title:{ en:"Addition — Putting together (+)", twi:"Nkabom — Fa bom (+)", ga:"Akabɔ — Kɛfata (+)", ewe:"Ƒoƒu — Tsɔ ƒo ƒu (+)" },
+    ex:{
+      en:"Addition means putting groups together. 2 and 3 makes 5.",
+      twi:"Nkabom kyerɛ sɛ wode akuw bom. Mmienu ne mmiɛnsa bom yɛ enum.",
+      ga:"Akabɔ tsɔɔ akɛ okɛ kuji lɛ fataa he. Enyɔ kɛ etɛ feɔ enumɔ.",
+      ewe:"Tsɔ ƒo ƒu gɔmee nye be nàtsɔ hawo ƒo ƒu. Eve kple etɔ̃ wɔ atɔ̃.",
+    },
+    review:true,
+  },
+  {
+    id:"sub", op:"−", kind:"arith", a:[2,9], bMode:"leq", fn:(a,b)=>a-b,
+    title:{ en:"Subtraction — Taking away (−)", twi:"Yiyie — Yi fi mu (−)", ga:"Jiemɔ — Jie kɛjɛ mli (−)", ewe:"Ɖeɖeɖa — Ɖe ɖa (−)" },
+    ex:{
+      en:"Subtraction means taking some away. Take 2 from 5 and 3 is left.",
+      twi:"Yiyie kyerɛ sɛ woyi bi fi mu. Yi mmienu fi enum mu a, mmiɛnsa na aka.",
+      ga:"Jiemɔ tsɔɔ akɛ ojie eko kɛjɛ mli. Jie enyɔ kɛjɛ enumɔ mli, etɛ eshwɛ.",
+      ewe:"Ɖeɖeɖa gɔmee nye be nàɖe ɖe ɖa. Ɖe eve le atɔ̃ me, etɔ̃ asusɔ.",
+    },
+    review:true,
+  },
+  {
+    id:"mul", op:"×", kind:"arith", a:[1,5], b:[1,5], fn:(a,b)=>a*b, groups:true,
+    title:{ en:"Multiplication — Groups of (×)", twi:"Mmɔho — Akuw a ɛyɛ pɛ (×)", ga:"Akpemɔ — Kuji ni damɔ pɛ (×)", ewe:"Agbɔsɔsɔ — Ha sɔsɔewo (×)" },
+    ex:{
+      en:"Multiplication is many equal groups. 3 groups of 2 makes 6.",
+      twi:"Mmɔho yɛ akuw pii a emu dɔɔso yɛ pɛ. Akuw mmiɛnsa a baako biara wɔ mmienu yɛ nsia.",
+      ga:"Akpemɔ ji kuji babaoo ni damɔ pɛpɛɛpɛ. Kuji etɛ ni eko fɛɛ eko hiɛ enyɔ feɔ ekpaa.",
+      ewe:"Agbɔsɔsɔ nye ha geɖe siwo sɔ. Ha etɔ̃ si me eve le la wɔ adé.",
+    },
+    review:true,
+  },
+  {
+    id:"div", op:"÷", kind:"arith", divMode:true, fn:(a,b)=>a/b, groups:true,
+    title:{ en:"Division — Sharing equally (÷)", twi:"Mpaepae — Kyɛ pɛpɛɛpɛ (÷)", ga:"Gbalamɔ — Gbala pɛpɛɛpɛ (÷)", ewe:"Mama — Mama sɔsɔe (÷)" },
+    ex:{
+      en:"Division means sharing into equal parts. Share 6 among 3 and each gets 2.",
+      twi:"Mpaepae kyerɛ sɛ wokyɛ mu pɛpɛɛpɛ. Kyɛ nsia mu mmiɛnsa a, obiara nya mmienu.",
+      ga:"Gbalamɔ tsɔɔ akɛ oja nii pɛpɛɛpɛ. Ja ekpaa kɛha mɛi etɛ, mɔ fɛɛ mɔ naa enyɔ.",
+      ewe:"Mama gɔmee nye be nàma wo sɔsɔe. Ma adé na ame etɔ̃, ame ɖe sia ɖe axɔ eve.",
+    },
+    review:true,
+  },
+  {
+    id:"frac", op:"½", kind:"frac",
+    title:{ en:"Fractions — Parts of a whole (½)", twi:"Ɔfa — Baako mu fa (½)", ga:"Fã — Nɔ kome mli fã (½)", ewe:"Akpa — Nu blibo ƒe akpa (½)" },
+    ex:{
+      en:"A fraction is a part of one whole. Cut bread into equal parts. Tap the parts you take.",
+      twi:"Ɔfa yɛ baako mu fa. Bubu paanoo mu pɛpɛɛpɛ. Mia afa a wofa no.",
+      ga:"Fã ji nɔ kome mli fã. Gbã blodo lɛ mli pɛpɛɛpɛ. Tã fã ni oŋɔɔ lɛ.",
+      ewe:"Akpa nye nu blibo ɖeka ƒe akpa. Lã abolo la ɖe akpa sɔsɔewo me. Zi akpa siwo nàxɔ la dzi.",
+    },
+    review:true,
+  },
+];
+
+/* ============================================================
+   ENGINE  (you usually won't need to edit below this line)
+   ============================================================ */
+function loadLang(){ try{ const v=localStorage.getItem("nunya-lang"); if(v && LANGS.some(l=>l.id===v)) return v; }catch(e){} return "twi"; }
+function saveLang(l){ try{ localStorage.setItem("nunya-lang", l); }catch(e){} }
+let LANG = loadLang();
+const meta = ()=> LANGS.find(l=>l.id===LANG);
+function head(obj){ return '<h3>'+t(obj)+' <span class="h-en">'+obj.en+'</span></h3>'; }
+function updateHint(){
+  document.getElementById("hint-loc").textContent = HINT[LANG];
+  document.getElementById("hint-en").textContent = HINT.en;
+}
+const langName = ()=> meta().name;
+const accent = ()=> meta().accent;
+
+function shellSVG(){
+  return '<svg class="shell" viewBox="0 0 40 40" aria-hidden="true">'
+    +'<defs><radialGradient id="sg" cx="38%" cy="30%" r="75%">'
+    +'<stop offset="0%" stop-color="#fff7e8"/><stop offset="55%" stop-color="#f0d9a8"/>'
+    +'<stop offset="100%" stop-color="#cf9f55"/></radialGradient></defs>'
+    +'<ellipse cx="20" cy="20" rx="13" ry="17" fill="url(#sg)" stroke="#a8772f" stroke-width="1.5"/>'
+    +'<path d="M20 7 C18 14 18 26 20 33" stroke="#9a6b28" stroke-width="2" fill="none" stroke-linecap="round"/>'
+    +'<path d="M20 12 q3 0 4 1 M20 12 q-3 0 -4 1 M20 28 q3 0 4 -1 M20 28 q-3 0 -4 -1" stroke="#a8772f" stroke-width="1" fill="none"/>'
+    +'</svg>';
+}
+function shells(n){ let s=""; for(let i=0;i<n;i++) s+=shellSVG(); return s; }
+function t(obj){ return obj[LANG]; }
+function rint(lo,hi){ return Math.floor(Math.random()*(hi-lo+1))+lo; }
+
+/* ---------- language picker ---------- */
+function renderPicker(){
+  const seg=document.getElementById("lang-seg");
+  seg.innerHTML="";
+  LANGS.forEach(l=>{
+    const b=document.createElement("button");
+    b.id="pick-"+l.id;
+    b.setAttribute("aria-pressed", l.id===LANG ? "true":"false");
+    b.innerHTML = l.label+' <span class="small">'+l.sub+'</span>';
+    b.onclick=()=>setLang(l.id);
+    seg.appendChild(b);
+  });
+}
+
+/* ---------- build tabs + panels ---------- */
+function build(){
+  const tablist = document.getElementById("tablist");
+  const panels = document.getElementById("panels");
+  tablist.innerHTML = ""; panels.innerHTML = "";
+
+  TOPICS.forEach((topic, i)=>{
+    const tab = document.createElement("button");
+    tab.setAttribute("role","tab"); tab.id = "tab-"+topic.id;
+    tab.setAttribute("aria-controls","panel-"+topic.id);
+    tab.setAttribute("aria-selected", i===0 ? "true":"false");
+    tab.innerHTML = '<span class="op">'+topic.op+'</span>'+topic.title.en.split(" — ")[0];
+    tab.onclick = ()=> selectTab(topic.id);
+    tablist.appendChild(tab);
+
+    const p = document.createElement("section");
+    p.className = "panel" + (i===0 ? " active":"");
+    p.id = "panel-"+topic.id;
+    p.setAttribute("role","tabpanel"); p.setAttribute("aria-labelledby","tab-"+topic.id);
+    panels.appendChild(p);
+    renderPanel(p, topic);
+  });
+
+  const xtab = document.createElement("button");
+  xtab.setAttribute("role","tab"); xtab.id="tab-xlate";
+  xtab.setAttribute("aria-controls","panel-xlate"); xtab.setAttribute("aria-selected","false");
+  xtab.innerHTML = '<span class="op">🔤</span>Number words';
+  xtab.onclick = ()=> selectTab("xlate");
+  tablist.appendChild(xtab);
+
+  const xp = document.createElement("section");
+  xp.className="panel"; xp.id="panel-xlate"; xp.setAttribute("role","tabpanel"); xp.setAttribute("aria-labelledby","tab-xlate");
+  document.getElementById("panels").appendChild(xp);
+  renderTranslator(xp);
+}
+
+function selectTab(id){
+  document.querySelectorAll('[role="tab"]').forEach(t=>t.setAttribute("aria-selected", t.id==="tab-"+id ? "true":"false"));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle("active", p.id==="panel-"+id));
+}
+
+function explainHTML(topic){
+  const reviewBadge = topic.review ? '<span class="review">⚠ needs native review</span>' : '';
+  return ''
+    + '<div class="explain">'
+    +   '<div class="ex-card home"><span class="tag">'+langName()+'</span><p>'+t(topic.ex)+'</p>'+reviewBadge+'</div>'
+    +   '<div class="ex-card eng"><span class="tag">English</span><p>'+topic.ex.en+'</p></div>'
+    + '</div>';
+}
+
+function renderPanel(p, topic){
+  p.innerHTML =
+      '<div class="topic-kicker">'+topic.op+' &nbsp;'+(t(topic.title).split(" — ")[0])+'</div>'
+    + '<h2 class="topic-title">'+topic.title.en+'</h2>'
+    + explainHTML(topic);
+  const stage = document.createElement("div");
+  stage.className = "stage";
+  p.appendChild(stage);
+  if(topic.kind==="count") buildCount(stage);
+  else if(topic.kind==="arith") buildArith(stage, topic);
+  else if(topic.kind==="frac") buildFrac(stage);
+}
+
+/* ---------- COUNTING ---------- */
+function buildCount(stage){
+  let count = 3;
+  stage.innerHTML =
+      head(HEAD.tray)
+    + '<div class="tray" id="c-tray"></div>'
+    + '<div class="count-read">'
+    +   '<div class="big" id="c-big"></div>'
+    +   '<div class="word" id="c-word"></div>'
+    +   '<div class="word"><span class="mut">English:</span> <span id="c-en"></span></div>'
+    + '</div>'
+    + '<div class="controls" style="justify-content:center;margin-top:14px">'
+    +   '<button class="btn ghost" id="c-rm">– '+t(UI.remove)+'</button>'
+    +   '<button class="btn gold" id="c-add">+ '+t(UI.add)+'</button>'
+    + '</div>';
+  const tray=stage.querySelector("#c-tray"), big=stage.querySelector("#c-big"),
+        word=stage.querySelector("#c-word"), en=stage.querySelector("#c-en");
+  function paint(){
+    tray.innerHTML = count>0 ? shells(count) : '<span style="color:var(--ink-soft)">Tap “+ '+t(UI.add)+'”</span>';
+    big.textContent = count;
+    const w = NUMBERS[count-1];
+    word.textContent = (count>=1&&count<=10) ? w[LANG] : "…";
+    word.style.color = "var(--"+accent()+")";
+    en.textContent = (count>=1&&count<=10) ? w.en : "…";
+  }
+  stage.querySelector("#c-add").onclick=()=>{ if(count<10){count++;paint();} };
+  stage.querySelector("#c-rm").onclick =()=>{ if(count>0){count--;paint();} };
+  paint();
+}
+
+/* ---------- ARITHMETIC ---------- */
+function buildArith(stage, topic){
+  let a,b,ans;
+  function gen(){
+    if(topic.divMode){ b=rint(2,5); const q=rint(1,5); a=b*q; ans=q; }
+    else if(topic.bMode==="leq"){ a=rint(topic.a[0],topic.a[1]); b=rint(1,a); ans=topic.fn(a,b); }
+    else { a=rint(topic.a[0],topic.a[1]); b=rint(topic.b[0],topic.b[1]); ans=topic.fn(a,b); }
+  }
+  gen();
+  stage.innerHTML =
+      head(HEAD.see)+'<div class="ar-vis"></div>'
+    + '<div class="practice">'+head(HEAD.turn)
+    +   '<div class="qline ar-q"></div>'
+    +   '<div class="controls">'
+    +     '<button class="btn gold ar-check">'+t(UI.check)+'</button>'
+    +     '<button class="btn ghost ar-new">'+t(UI.next)+'</button>'
+    +   '</div>'
+    +   '<div class="feedback ar-fb" aria-live="polite"></div>'
+    + '</div>';
+  const vis=stage.querySelector(".ar-vis"), q=stage.querySelector(".ar-q"), fb=stage.querySelector(".ar-fb");
+
+  function visual(){
+    if(topic.id==="add"){
+      vis.innerHTML='<div class="objrow"><span class="group">'+shells(a)+'</span><span>+</span><span class="group">'+shells(b)+'</span><span>=</span><span class="group">'+shells(a+b)+'</span></div>';
+    } else if(topic.id==="sub"){
+      let g='<span class="group">'; for(let i=0;i<a;i++){g+= (i>=a-b?'<span style="opacity:.22;filter:grayscale(1)">'+shellSVG()+'</span>':shellSVG());} g+='</span>';
+      vis.innerHTML='<div class="objrow">'+g+'<span>−</span><span class="group faded">'+shells(b)+'</span><span>=</span><span class="group">'+shells(a-b)+'</span></div>';
+    } else if(topic.id==="mul"){
+      let groups=''; for(let i=0;i<a;i++) groups+='<span class="group">'+shells(b)+'</span>';
+      vis.innerHTML='<div class="objrow">'+groups+'</div><div style="text-align:center;color:var(--ink-soft);font-family:Plus Jakarta Sans;font-size:15px;font-weight:600">'+a+' groups of '+b+'</div>';
+    } else if(topic.id==="div"){
+      let baskets=''; for(let i=0;i<b;i++) baskets+='<span class="group">'+shells(a/b)+'</span>';
+      vis.innerHTML='<div class="objrow">'+baskets+'</div><div style="text-align:center;color:var(--ink-soft);font-family:Plus Jakarta Sans;font-size:15px;font-weight:600">'+a+' shared into '+b+' baskets</div>';
+    }
+  }
+  function question(){
+    q.innerHTML = a+' <span style="color:var(--gold-deep)">'+topic.op+'</span> '+b+' = <input class="ar-in" type="number" inputmode="numeric" aria-label="your answer" />';
+    fb.textContent=""; fb.className="feedback";
+    const inp=stage.querySelector(".ar-in");
+    inp.addEventListener("keydown",e=>{ if(e.key==="Enter") check(); });
+    inp.focus();
+  }
+  function check(){
+    const inp=stage.querySelector(".ar-in");
+    const val=parseInt(inp.value,10);
+    if(isNaN(val)){ inp.focus(); return; }
+    if(val===ans){
+      fb.className="feedback ok";
+      fb.innerHTML='✓ '+t(FEEDBACK.correct)+' <span class="all">('+FEEDBACK.correct.en+')</span>';
+    } else {
+      fb.className="feedback no";
+      fb.innerHTML='✗ '+t(FEEDBACK.retry)+' <span class="all">('+FEEDBACK.retry.en+')</span>';
+      inp.select();
+    }
+  }
+  stage.querySelector(".ar-check").onclick=check;
+  stage.querySelector(".ar-new").onclick=()=>{ gen(); visual(); question(); };
+  visual(); question();
+}
+
+/* ---------- FRACTIONS ---------- */
+function buildFrac(stage){
+  let parts=4, taken=new Set();
+  stage.innerHTML =
+      head(HEAD.share)
+    + '<div class="fracwrap">'
+    +   '<div class="frac-controls" id="f-ctrl">'
+    +     '<button class="pill" data-p="2">2 parts · ½</button>'
+    +     '<button class="pill" data-p="3">3 parts · ⅓</button>'
+    +     '<button class="pill" aria-pressed="true" data-p="4">4 parts · ¼</button>'
+    +   '</div>'
+    +   '<div id="f-svg" class="frac-svg"></div>'
+    +   '<div class="frac-read" id="f-read"></div>'
+    +   '<div style="color:var(--ink-soft);font-size:15px;font-weight:600" id="f-words"></div>'
+    + '</div>';
+  const svgBox=stage.querySelector("#f-svg"), read=stage.querySelector("#f-read"), words=stage.querySelector("#f-words");
+  function draw(){
+    const R=110, cx=130, cy=130; let paths="";
+    for(let i=0;i<parts;i++){
+      const a0=(i/parts)*2*Math.PI - Math.PI/2;
+      const a1=((i+1)/parts)*2*Math.PI - Math.PI/2;
+      const x0=cx+R*Math.cos(a0), y0=cy+R*Math.sin(a0);
+      const x1=cx+R*Math.cos(a1), y1=cy+R*Math.sin(a1);
+      const large = (a1-a0)>Math.PI ? 1:0;
+      const fill = taken.has(i) ? "#E0A22B" : "#FFFCF4";
+      paths += '<path class="slice" data-i="'+i+'" d="M'+cx+' '+cy+' L'+x0.toFixed(1)+' '+y0.toFixed(1)+' A'+R+' '+R+' 0 '+large+' 1 '+x1.toFixed(1)+' '+y1.toFixed(1)+' Z" fill="'+fill+'" stroke="#B97D14" stroke-width="2"/>';
+    }
+    svgBox.innerHTML='<svg viewBox="0 0 260 260" width="240" height="240" role="img" aria-label="circle divided into '+parts+' parts, '+taken.size+' taken">'+paths+'</svg>';
+    svgBox.querySelectorAll(".slice").forEach(s=>{
+      s.onclick=()=>{ const i=+s.dataset.i; taken.has(i)?taken.delete(i):taken.add(i); draw(); };
+    });
+    read.textContent = taken.size + " / " + parts;
+    if(taken.size===0){ words.textContent="Tap the parts you take."; }
+    else {
+      const nT=NUMBERS[taken.size-1], dT=NUMBERS[parts-1];
+      words.innerHTML = '<strong style="color:var(--'+accent()+')">'+nT[LANG]+' / '+dT[LANG]+'</strong> &nbsp;·&nbsp; <span>English: '+nT.en+' of '+dT.en+'</span>';
+    }
+  }
+  stage.querySelectorAll("#f-ctrl .pill").forEach(b=>{
+    b.onclick=()=>{
+      stage.querySelectorAll("#f-ctrl .pill").forEach(x=>x.setAttribute("aria-pressed","false"));
+      b.setAttribute("aria-pressed","true");
+      parts=+b.dataset.p; taken.clear(); draw();
+    };
+  });
+  draw();
+}
+
+/* ---------- TRANSLATOR ---------- */
+function renderTranslator(p){
+  p.innerHTML =
+      '<div class="topic-kicker">🔤 &nbsp;Number words</div>'
+    + '<h2 class="topic-title">Numbers in Twi, Gã, Eʋe & English</h2>'
+    + '<p style="max-width:60ch;color:var(--ink-soft)">Tap a number to see how it is said in every language.</p>'
+    + '<div class="stage"><div class="xlate">'
+    +   '<div class="numgrid" id="x-grid"></div>'
+    +   '<div class="xout" id="x-out"></div>'
+    + '</div></div>';
+  const grid=p.querySelector("#x-grid"), out=p.querySelector("#x-out");
+  let sel=1;
+  function paintOut(){
+    const w=NUMBERS[sel-1];
+    let rows = '<div class="row"><span class="k">Number</span><span class="v" style="font-family:Fraunces">'+w.n+'</span></div>'
+             + '<div class="row"><span class="k">English</span><span class="v">'+w.en+'</span></div>';
+    LANGS.forEach(l=>{
+      rows += '<div class="row"><span class="k">'+l.name+'</span><span class="v" style="color:var(--'+l.accent+');font-family:Fraunces">'+w[l.id]+'</span></div>';
+    });
+    out.innerHTML = rows;
+  }
+  NUMBERS.forEach(w=>{
+    const b=document.createElement("button");
+    b.textContent=w.n; b.setAttribute("aria-pressed", w.n===1?"true":"false");
+    b.onclick=()=>{ sel=w.n; grid.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); paintOut(); };
+    grid.appendChild(b);
+  });
+  paintOut();
+}
+
+/* ---------- language switch ---------- */
+function setLang(l){
+  LANG=l; saveLang(l);
+  LANGS.forEach(x=>{ const btn=document.getElementById("pick-"+x.id); if(btn) btn.setAttribute("aria-pressed", x.id===l?"true":"false"); });
+  const active = document.querySelector('[role="tab"][aria-selected="true"]').id.replace("tab-","");
+  build();
+  selectTab(active);
+  updateHint();
+}
+
+renderPicker();
+build();
+updateHint();
+</script>
+</body>
+</html>
